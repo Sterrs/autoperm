@@ -1,0 +1,56 @@
+\documentclass{article}
+
+\title{Autoperm Cipher}
+\date{8th December 2019}
+\author{Alastair Horn}
+
+\RequirePackage[
+ margin=1in,
+ headheight=13.6pt]{geometry}
+
+ \usepackage{amsmath}
+
+\setlength{\parindent}{0cm}
+\setlength{\parskip}{1em}
+
+\begin{document}
+
+\maketitle
+
+\section*{Introduction}
+
+While I was going to sleep last night this idea for 
+a cipher popped into my head. As any aspiring nerd
+would, I hopped half-asleep out of bed and
+wrote the idea down.
+
+What follows is a short explanation of the cipher.
+Accopanying code is provided for enciphering and deciphering.
+
+\section*{The Cipher}
+
+We are given as plaintext a string of letters A-Z
+which will here be represented by numbers 1-26 in
+alphabetical order. Let the plaintext be $a_1, a_2, \ldots, a_n$,
+and the target ciphertext be $b_1, b_2, \ldots, b_n$.
+
+The keys are two permutations $\sigma_0$, $\tau_0$ of
+$\{1, 2, \ldots, 26\}$. The keys and the plaintext together produce
+sequences of permutations as follows:
+\begin{align*}
+\sigma_{n+1} &= \sigma_n \circ (a_{2n} \ \ a_{2n+1}) \\
+\tau_{n+1} &= \tau_n \circ (a_{2n} \ \ a_{2n+1})
+\end{align*}
+for all $n$.
+
+\textit{Round brackets are used here to write cycles,
+and $\circ$ is used to compose functions.}
+
+And of course we have a way to generate ciphertext from the
+plaintext and the sequences of permutations:
+\begin{align*}
+b_{2n} &= \sigma_n(a_{2n}) \\
+b_{2n+1} &= \tau_n (a_{2n+1})
+\end{align*}
+
+\end{document}
