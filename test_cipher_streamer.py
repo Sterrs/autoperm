@@ -4,9 +4,10 @@ Unit tests for CipherStreamer in autoperm.py
 
 import unittest
 
-from autoperm import *
-
 import io
+import random
+
+from cipher_streamer import CipherStreamer
 
 # TODO: add some more tests here
 

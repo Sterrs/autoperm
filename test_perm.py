@@ -4,9 +4,12 @@ Unit tests for Perm in autoperm.py
 
 import unittest
 
-from autoperm import *
+import itertools
+
 from functools import reduce
 from operator import mul
+
+from perm import Perm
 
 class TestPerm(unittest.TestCase):
     def setUp(self):
