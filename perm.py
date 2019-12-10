@@ -107,6 +107,11 @@ class Perm:
         Probably it's O(k * log(n))-ish where k is the size of the domain, and n
         is the exponent, as it uses exponentiation by squaring.
 
+        Possibly it's worth thinking about the asymptotic improvement brought by
+        calculating the order of the permutation and taking n mod ord(g) (in
+        fact asymptotically the time is then independent of n) but this is
+        probably too theoretical to be useful.
+
         Supports negative exponents in the standard inverse sense.
         """
         if n < 0:
