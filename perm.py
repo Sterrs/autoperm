@@ -13,8 +13,12 @@ class Perm:
     Permutation objects should be treated as immutable. New permutations can be
     obtained by calling methods like inverse() or composing existing
     permutations, which can be achieved by using the overloaded * operator.
+
+    If you instantiate via __init__, this class assumes that you're a grown-up
+    and you've given it a mapping that is a bijection. If you can't be sure,
+    feel free to check with .is_permutation().
     """
-    def __init__(self, mapping):
+    def __init__(self, mapping={}):
         """
         Create a permutation directly by providing a dictionary map
         """
@@ -40,6 +44,13 @@ class Perm:
         outputs = list(domain)
         random.shuffle(outputs)
         return cls(dict(zip(domain, outputs)))
+
+    def is_permutation(self):
+        """
+        Simple method that checks if this is a permutation. This method should
+        be robust as keys in the given mapping are supposed to be distinct.
+        """
+        return set(self.mapping.keys()) == set(self.mapping.values())
 
     def disjoint_cycle_decomposition(self):
         """

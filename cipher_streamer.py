@@ -24,6 +24,13 @@ class CipherStreamer:
     At the end, all remaining punctuation is written to the output file. This is
     useful because for instance it means that the last trailing newline (which
     is present in any file made by a sane person) will be written as output.
+
+    It is perhaps worth mentioning that it is still perfectly possible to access
+    the underlying generator:
+    >>> @CipherStreamer
+    ... def my_cipher(text):
+    ...     pass
+    >>> my_cipher.func
     """
     def __init__(self, func):
         """

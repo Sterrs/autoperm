@@ -4,10 +4,8 @@ Unit tests for Perm in autoperm.py.
 This contains an inordinate library of permutations that it runs some sanity
 checks on. It becomes even more inordinate when some combinatorics gets
 involved, but it helps my peace of mind a lot. For reference, when I run
-
-pypy3 -m unittest -v
-
-it takes about 6-7 seconds to finish.
+$ pypy3 -m unittest -v
+it takes about 10 seconds to finish.
 """
 
 # TODO: somehow write tests for string parts - probably needs OrderedDict for
@@ -19,6 +17,7 @@ import itertools
 
 from functools import reduce
 from operator import mul
+from random import sample
 
 from perm import Perm
 
@@ -34,18 +33,27 @@ class TestPerm(unittest.TestCase):
         # lots of edge cases
         self.reg_perms = [
                 self.permoc, self.perm1c, self.perm2c, self.perm3c,
-                *[Perm.from_cycle(range(j, j + i)) for i in range(4, 11)
-                                                   for j in range(11 - i)],
-                *[Perm.from_cycle(range(j, j + i)[::-1]) for i in range(2, 11)
+                *(Perm.from_cycle(range(j, j + i)) for i in range(4, 11)
+                                                   for j in range(11 - i)),
+                *(Perm.from_cycle(range(j, j + i)[::-1]) for i in range(2, 11)
                                                          for j in range(11 - i)
-                                                         ],
+                                                         ),
                 self.operm, self.perm6]
         # add some more random permutations to hopefully catch more edge cases,
         # but keep them in a separate list so I can also access a deterministic
         # list of permutations that I can guarantee properties of
         self.perms = [
                 *self.reg_perms,
-                *[Perm.random(range(i)) for i in range(4, 20)]]
+                *(Perm.random(range(i)) for i in range(4, 20))]
+        for _ in range(20):
+            a, b = sample(self.perms, 2)
+            self.perms.append(a * b)
+
+    def test_is_permutation(self):
+        for g in self.perms:
+            self.assertTrue(g.is_permutation())
+        self.assertFalse(Perm({1: 2, 2: 2}).is_permutation())
+        self.assertFalse(Perm({1: 2, 2: 3}).is_permutation())
 
     def test_eq(self):
         for g in self.perms:
