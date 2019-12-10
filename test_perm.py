@@ -10,6 +10,9 @@ pypy3 -m unittest -v
 it takes about 6-7 seconds to finish.
 """
 
+# TODO: somehow write tests for string parts - probably needs OrderedDict for
+#       3.6
+
 import unittest
 
 import itertools

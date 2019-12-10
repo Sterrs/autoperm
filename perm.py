@@ -68,7 +68,7 @@ class Perm:
         """
         Create the inverse of a permutation
         """
-        return self.__class__({v: k for k, v in self.mapping.items()})
+        return type(self)({v: k for k, v in self.mapping.items()})
 
     def __str__(self):
         """
@@ -81,7 +81,7 @@ class Perm:
         """
         Show the underlying dictionary object
         """
-        return "{}({})".format(self.__class__.__name__, self.mapping)
+        return "{}({})".format(type(self).__name__, self.mapping)
 
     def __getitem__(self, item):
         """
@@ -98,8 +98,8 @@ class Perm:
         that the domain stays as big as possible, which hopefully avoids
         forgetting anything important
         """
-        return self.__class__({a: self[other[a]]
-                               for a in set(self.mapping) | set(other.mapping)})
+        return type(self)({a: self[other[a]]
+                           for a in set(self.mapping) | set(other.mapping)})
 
     def __pow__(self, n):
         """
@@ -120,7 +120,7 @@ class Perm:
         # the tree (and lets me write ** 2 in the recursive step, so the
         # auxiliary variable gets brushed under the recursion)
         if n == 0:
-            return self.__class__({})
+            return type(self)({})
         if n == 1:
             return self
         if n == 2:
