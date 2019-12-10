@@ -89,7 +89,9 @@ class TestAutoPerm(unittest.TestCase):
             try:
                 with open(file_entry.name, "r") as data_file:
                     data = data_file.read()
-            except UnicodeDecodeError:
+            # this is everything that I've currently thought of that could go
+            # wrong - probably not exhaustive
+            except (UnicodeDecodeError, PermissionError):
                 continue
             plaintext = io.StringIO(data)
             ciphertext = io.StringIO()
