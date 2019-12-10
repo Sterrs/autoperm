@@ -1,17 +1,14 @@
 \documentclass{article}
-
 \title{Autoperm Cipher}
-\date{8th December 2019}
 \author{Alastair Horn}
 
-\RequirePackage[
+\usepackage[
  margin=1in,
  headheight=13.6pt]{geometry}
 
- \usepackage{amsmath}
+\usepackage{amsmath}
 
-\setlength{\parindent}{0cm}
-\setlength{\parskip}{1em}
+\usepackage{parskip}
 
 \begin{document}
 
@@ -21,34 +18,33 @@
 
 This idea for a cipher popped into my head recently.
 
-What follows is a short explanation of the cipher.
-Accopanying code is provided for enciphering and deciphering.
+What follows is a short explanation of the cipher. Accompanying code is provided
+for enciphering and deciphering.
 
 \section*{The Cipher}
 
-We are given as plaintext a string of letters A-Z
-which will here be represented by numbers 1-26 in
-alphabetical order. Let the plaintext be $m$ letters in length,
-denoted by $a_1, a_2, \ldots, a_m$,
-and the target ciphertext be $b_1, b_2, \ldots, b_m$.
+We are given as plaintext a string of letters A-Z which will here be represented
+by numbers 1-26 in alphabetical order. Let the plaintext be \(m\) letters in
+length, denoted by \(a_1, a_2, \dotsc, a_m\), and the target ciphertext be
+\(b_1, b_2, \dotsc, b_m\).
 
-The keys are two permutations $\sigma_0$, $\tau_0$ of
-$\{1, 2, \ldots, 26\}$. The keys and the plaintext together produce
-sequences of permutations as follows:
+The keys are two permutations \(\sigma_0\), \(\tau_0\) of
+\(\{1, 2, \dotsc, 26\}\). The keys and the plaintext together produce sequences
+of permutations as follows:
+\begin{alignat*}2
+ \sigma_{n + 1} &= \sigma_n && \circ (a_{2n}\ a_{2n + 1}) \\
+ \tau_{n + 1}   &= \tau_n   && \circ (a_{2n}\ a_{2n + 1})
+\end{alignat*}
+for all \(n\).
+
+\emph{Round brackets are used here to write cycles, and \(\circ\) is used to
+compose functions.}
+
+And of course we have a way to generate ciphertext from the plaintext and the
+sequences of permutations:
 \begin{align*}
-\sigma_{n+1} &= \sigma_n \circ (a_{2n} \ \ a_{2n+1}) \\
-\tau_{n+1} &= \tau_n \circ (a_{2n} \ \ a_{2n+1})
-\end{align*}
-for all $n$.
-
-\textit{Round brackets are used here to write cycles,
-and $\circ$ is used to compose functions.}
-
-And of course we have a way to generate ciphertext from the
-plaintext and the sequences of permutations:
-\begin{align*}
-b_{2n} &= \sigma_n(a_{2n}) \\
-b_{2n+1} &= \tau_n (a_{2n+1})
+ b_{2n}     &= \sigma_n(a_{2n}) \\
+ b_{2n + 1} &= \tau_n (a_{2n + 1})
 \end{align*}
 
 \end{document}
