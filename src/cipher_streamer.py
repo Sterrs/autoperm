@@ -68,4 +68,3 @@ class CipherStreamer:
         for punc in in_file_2:
             if not punc.isalpha():
                 out_file.write(punc)
-

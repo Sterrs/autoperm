@@ -147,4 +147,3 @@ class Perm:
         """
         return (all(sa == other[a] for a, sa in self.mapping.items())
                 and all(oa == self[a] for a, oa in other.mapping.items()))
-
