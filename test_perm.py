@@ -1,5 +1,13 @@
 """
-Unit tests for Perm in autoperm.py
+Unit tests for Perm in autoperm.py.
+
+This contains an inordinate library of permutations that it runs some sanity
+checks on. It becomes even more inordinate when some combinatorics gets
+involved, but it helps my peace of mind a lot. For reference, when I run
+
+pypy3 -m unittest -v
+
+it takes about 6-7 seconds to finish.
 """
 
 import unittest
@@ -23,8 +31,11 @@ class TestPerm(unittest.TestCase):
         # lots of edge cases
         self.reg_perms = [
                 self.permoc, self.perm1c, self.perm2c, self.perm3c,
-                *[Perm.from_cycle(range(i)) for i in range(4, 11)],
-                *[Perm.from_cycle(range(i)[::-1]) for i in range(2, 11)],
+                *[Perm.from_cycle(range(j, j + i)) for i in range(4, 11)
+                                                   for j in range(11 - i)],
+                *[Perm.from_cycle(range(j, j + i)[::-1]) for i in range(2, 11)
+                                                         for j in range(11 - i)
+                                                         ],
                 self.operm, self.perm6]
         # add some more random permutations to hopefully catch more edge cases,
         # but keep them in a separate list so I can also access a deterministic
@@ -127,8 +138,8 @@ class TestPerm(unittest.TestCase):
             # check if the order divides the LCM of cycle lengths
             order = reduce(mul, map(len, g.disjoint_cycle_decomposition()), 1)
             self.assertEqual(g ** order, self.operm)
-        self.assertEqual(self.perms[10] ** 9,
-                         self.perms[10].inverse())
+        self.assertEqual(Perm.from_cycle(range(10)) ** 9,
+                         Perm.from_cycle(range(10)).inverse())
 
     def test_call(self):
         for g in self.perms:
