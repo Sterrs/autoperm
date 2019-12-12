@@ -10,20 +10,10 @@ import os
 import io
 
 from perm import Perm
-from autoperm import (chunk, autoperm_encipher, autoperm_decipher,
+from autoperm import (autoperm_encipher, autoperm_decipher,
                       permutation_from_key)
 
 class TestAutoPerm(unittest.TestCase):
-    def test_chunk(self):
-        self.assertEqual(list(chunk([], 1)), [])
-        self.assertEqual(list(chunk([], 2)), [])
-        self.assertEqual(list(chunk(range(4), 2)),
-                         [(0, 1), (2, 3)])
-        self.assertEqual(list(chunk(range(4), 3)),
-                         [(0, 1, 2), (3, None, None)])
-        self.assertEqual(list(chunk(range(4), 3, 4)),
-                         [(0, 1, 2), (3, 4, 4)])
-
     def test_permutation_from_key(self):
         self.assertEqual(Perm(), permutation_from_key(""))
         self.assertEqual(Perm(), permutation_from_key("a"))
@@ -96,9 +86,10 @@ class TestAutoPerm(unittest.TestCase):
             plaintext = io.StringIO(data)
             ciphertext = io.StringIO()
             decrypted_plaintext = io.StringIO()
-            autoperm_encipher(plaintext, ciphertext, sigma, tau)
+            autoperm_encipher.preserve(plaintext, ciphertext, sigma, tau)
             ciphertext = io.StringIO(ciphertext.getvalue())
-            autoperm_decipher(ciphertext, decrypted_plaintext, sigma, tau)
+            autoperm_decipher.preserve(ciphertext, decrypted_plaintext,
+                                       sigma, tau)
             self.assertEqual(decrypted_plaintext.getvalue(), data)
 
 if __name__ == "__main__":

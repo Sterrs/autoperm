@@ -7,7 +7,7 @@ import unittest
 import io
 import random
 
-from cipher_streamer import CipherStreamer
+from cipher_streamer import CipherStreamer, chunk
 
 # TODO: add some more tests here
 
@@ -51,30 +51,69 @@ class TestCipherStreamer(unittest.TestCase):
                 *self.preservative_generators,
                 to_exes, extra_exes, not_enough_exes]
         self.input_text = '"Sphinx (of black quartz), judge my vow!?";'
+        self.input_stripped = "SPHINXOFBLACKQUARTZJUDGEMYVOW\n"
+        self.input_blocks_lines = "SPHIN XOFBL\nACKQU ARTZJ\nUDGEM YVOW\n"
+        self.input_lines = "SPHINXOFBL\nACKQUARTZJ\nUDGEMYVOW\n"
+        self.input_blocks = "SPHIN XOFBL ACKQU ARTZJ UDGEM YVOW\n"
         self.input_file = io.StringIO(self.input_text)
         self.output_file = io.StringIO()
 
-    def test_cipher_streamer(self):
+    def test_chunk(self):
+        self.assertEqual(list(chunk([], 1)), [])
+        self.assertEqual(list(chunk([], 2)), [])
+        self.assertEqual(list(chunk(range(4), 2)),
+                         [(0, 1), (2, 3)])
+        self.assertEqual(list(chunk(range(4), 3)),
+                         [(0, 1, 2), (3, None, None)])
+        self.assertEqual(list(chunk(range(4), 3, 4)),
+                         [(0, 1, 2), (3, 4, 4)])
+
+    def test_preserve(self):
         for g in self.preservative_generators:
             self.setUp()
-            CipherStreamer(g)(self.input_file, self.output_file)
+            CipherStreamer(g).preserve(self.input_file, self.output_file)
             self.assertEqual(self.input_text, self.output_file.getvalue())
-
-    def test_to_exes(self):
-        CipherStreamer(to_exes)(self.input_file, self.output_file)
+        self.setUp()
+        CipherStreamer(to_exes).preserve(self.input_file, self.output_file)
         self.assertEqual(self.output_file.getvalue(),
                          '"Xxxxxx (xx xxxxx xxxxxx), xxxxx xx xxx!?";')
-
-    def test_extra_exes(self):
-        CipherStreamer(extra_exes)(self.input_file, self.output_file)
+        self.setUp()
+        CipherStreamer(extra_exes).preserve(self.input_file, self.output_file)
         self.assertEqual(self.output_file.getvalue(),
                          ('"Xxxxxx (xx xxxxx xxxxxx), xxxxx xx xxx!?";'
                           'XXXXXXXXXXXXXXXXXXXXXXXXXXXXX'))
-
-    def test_not_enough_exes(self):
-        CipherStreamer(not_enough_exes)(self.input_file, self.output_file)
+        self.setUp()
+        CipherStreamer(not_enough_exes).preserve(self.input_file,
+                                                 self.output_file)
         self.assertEqual(self.output_file.getvalue(),
                          '"Xxx (  ),   !?";')
+
+    def test_strip(self):
+        for g in self.preservative_generators:
+            self.setUp()
+            CipherStreamer(g).strip(self.input_file, self.output_file,
+                                    block=0, width=0)
+            self.assertEqual(self.input_stripped, self.output_file.getvalue())
+            self.setUp()
+            CipherStreamer(g).strip(self.input_file, self.output_file,
+                                    block=5, width=0)
+            self.assertEqual(self.input_blocks, self.output_file.getvalue())
+            self.setUp()
+            CipherStreamer(g).strip(self.input_file, self.output_file,
+                                    block=0, width=10)
+            self.assertEqual(self.input_lines, self.output_file.getvalue())
+            for width in range(11, 17):
+                self.setUp()
+                CipherStreamer(g).strip(self.input_file, self.output_file,
+                                        block=5, width=width)
+                self.assertEqual(self.input_blocks_lines,
+                                 self.output_file.getvalue())
+            for width in 10, 17:
+                self.setUp()
+                CipherStreamer(g).strip(self.input_file, self.output_file,
+                                        block=5, width=width)
+                self.assertNotEqual(self.input_blocks_lines,
+                                    self.output_file.getvalue())
 
 if __name__ == "__main__":
     unittest.main()
