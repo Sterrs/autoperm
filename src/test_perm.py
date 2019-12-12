@@ -60,6 +60,7 @@ class TestPerm(unittest.TestCase):
             self.assertEqual(g, g)
             self.assertEqual(g, Perm(g.mapping))
             self.assertEqual(g, Perm(g.mapping.copy()))
+            self.assertNotEqual(g, Perm({**g.mapping, -1: -2}))
         self.assertEqual(self.perm6, Perm({1: 2, 2: 1, 4: 5, 5: 6, 6: 4}))
         self.assertEqual(Perm({1: 2, 2: 1}), Perm({2: 1, 1: 2}))
         self.assertEqual(Perm({1: 2, 2: 1, 3: 3}), Perm({2: 1, 1: 2, 4: 4}))
