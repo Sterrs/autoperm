@@ -105,7 +105,9 @@ def get_args():
     """
     Parse argv
     """
-    parser = argparse.ArgumentParser(description=__doc__)
+    parser = argparse.ArgumentParser(
+            description=__doc__,
+            formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     parser.add_argument(
             "in_file", type=argparse.FileType("r"), default="-", nargs="?",
             help="Input file (plaintext or ciphertext)")
@@ -128,8 +130,8 @@ def get_args():
             help="Perform decryption")
     parser.add_argument(
             "-v", "--verbose", action="store_true",
-            help="""Print more information - careful you don't use - as out_file
-                    and pipe to anything.""")
+            help="""Print more information - careful you don't use `-` as
+                    out_file and pipe to anything.""")
     return parser.parse_args()
 
 def main(args):
