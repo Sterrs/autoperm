@@ -22,7 +22,7 @@ import itertools
 
 import argparse
 
-from test_perm import Perm
+from perm import Perm
 from cipher_streamer import CipherStreamer
 
 def chunk(iterable, size, fillvalue=None):
