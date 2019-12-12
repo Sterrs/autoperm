@@ -161,5 +161,17 @@ class TestPerm(unittest.TestCase):
             for item in g.mapping:
                 self.assertEqual(g.mapping[item], g[item])
 
+    def test_str(self):
+        for g in self.perms:
+            str(g)
+
+    def test_repr(self):
+        for g in self.perms:
+            repr(g)
+
+    def test_table_format(self):
+        for g in self.perms:
+            g.table_format()
+
 if __name__ == "__main__":
     unittest.main()

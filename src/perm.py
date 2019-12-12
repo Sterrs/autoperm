@@ -94,6 +94,19 @@ class Perm:
         """
         return "{}({})".format(type(self).__name__, self.mapping)
 
+    def table_format(self):
+        """
+        Format permutation as a table
+        """
+        kv_pairs = self.mapping.items()
+        if not kv_pairs:
+            return "(empty permutation)\n"
+        keys, values = zip(*kv_pairs)
+        kv_lengths = [max(len(str(i)) for i in kv) for kv in kv_pairs]
+        return "{}\n{}".format(
+                " ".join(str(k).rjust(l) for k, l in zip(keys, kv_lengths)),
+                " ".join(str(v).rjust(l) for v, l in zip(values, kv_lengths)))
+
     def __getitem__(self, item):
         """
         Use lookup syntax to apply the permutation to an element.
