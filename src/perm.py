@@ -85,8 +85,11 @@ class Perm:
         """
         Convert to disjoint cycle decomposition string
         """
+        dcd = self.disjoint_cycle_decomposition()
+        if not dcd:
+            return "Id"
         return "".join("({})".format(" ".join(map(str, cycle))) for cycle in
-                self.disjoint_cycle_decomposition())
+                dcd)
 
     def __repr__(self):
         """
@@ -100,7 +103,7 @@ class Perm:
         """
         kv_pairs = self.mapping.items()
         if not kv_pairs:
-            return "(empty permutation)\n"
+            return "Id\n"
         keys, values = zip(*kv_pairs)
         kv_lengths = [max(len(str(i)) for i in kv) for kv in kv_pairs]
         return "{}\n{}".format(
