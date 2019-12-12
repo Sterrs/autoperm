@@ -14,7 +14,6 @@ Implementation and specification by the mighty Alastair Horn.
 
 # TODO: try to do something with stripping accents from Unicode characters with
 #       unicodedata
-# TODO: generally write a couple more tests:
 
 import string
 import collections

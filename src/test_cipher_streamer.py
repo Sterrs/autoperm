@@ -9,8 +9,6 @@ import random
 
 from cipher_streamer import CipherStreamer, chunk
 
-# TODO: add some more tests here
-
 # generators for use in TestCipherStreamer
 def unchanged(text):
     for c in text:
