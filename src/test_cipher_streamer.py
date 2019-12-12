@@ -68,6 +68,18 @@ class TestCipherStreamer(unittest.TestCase):
         self.assertEqual(list(chunk(range(4), 3, 4)),
                          [(0, 1, 2), (3, 4, 4)])
 
+    def test_call(self):
+        for g in self.generators:
+            self.assertRaises(ValueError, CipherStreamer(g),
+                              preserve=True, block=1)
+            self.assertRaises(ValueError, CipherStreamer(g),
+                              preserve=True, width=1)
+            self.assertRaises(ValueError, CipherStreamer(g),
+                              io.StringIO(), io.StringIO(), width=1, block=2)
+            # shouldn't cause errors
+            CipherStreamer(g)(io.StringIO(), io.StringIO(), block=0, width=1)
+            CipherStreamer(g)(io.StringIO(), io.StringIO(), block=1, width=0)
+
     def test_preserve(self):
         for g in self.preservative_generators:
             self.setUp()
