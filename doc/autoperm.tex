@@ -46,8 +46,24 @@ compose functions.}
 And of course we have a way to generate ciphertext from the plaintext and the
 sequences of permutations:
 \begin{align*}
- b_{2n}     &= \sigma_n(a_{2n}) \\
- b_{2n + 1} &= \tau_n (a_{2n + 1})
+  b_{2n}     &= \sigma_n(a_{2n}) \\
+  b_{2n + 1} &= \tau_n (a_{2n + 1})
 \end{align*}
+
+\section*{Cryptanalysis and Known Weaknesses}
+
+Over short distances within the plaintext, letters appearing more than once are 
+likely to produce a similar result in the ciphertext.
+Consider for example some plaintext letters
+$a_{2n}, a_{2n+1}, a_{2n+2}, a_{2n+3}$, with $a_{2n+1} = a_{2n+2}$. We have
+\begin{align*}
+  b_{2n}   &= \sigma_n(a_{2n}) \\
+  b_{2n+1} &= \tau_n(a_{2n+1}) \\
+  b_{2n+2} &= \sigma_{n+1}(a_{2n+2})  \\
+           &= (\sigma_n \circ (a_{2n}\ a_{2n+1}))(a_{2n+1}) \\
+           &= b_{2n}
+\end{align*}
+and other similar formations of letters cropping up again can produce similar
+arrangements.
 
 \end{document}
