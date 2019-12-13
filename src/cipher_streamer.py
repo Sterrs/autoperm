@@ -18,14 +18,17 @@ def chunk(iterable, size, fillvalue=None):
 
 def get_lines(iterable, block, width):
     """
-    Convert some text into regular blocks of characters, wrapped after
-    a certain length.
-    If block <= 0, do not insert spaces
-    If width <= 0, do not insert newlines
+    Convert into iterable of characters into regular blocks of characters,
+    wrapped after a certain length.
+    - If block <= 0, do not insert spaces
+    - If width <= 0, do not insert newlines
+
+    It is *excruciatingly* lazy, to the point of illegibility. But I think it's
+    fun :).
     """
     # Each of the four cases is expected to produce an iterable `lines`,
-    # consisting of iterables of strings to be joined and written as lines
-    # to out_file.
+    # consisting of iterables of strings to be joined and written as lines to
+    # out_file.
     if block <= 0:
         if width <= 0:
             lines = iterable,
@@ -42,19 +45,22 @@ def get_lines(iterable, block, width):
             # just write all the blocks
             lines = itertools.chain.from_iterable(chunks_spaced),
         else:
+            if width < block:
+                raise ValueError("`width` should be >= `block`")
             blocks_per_line = (width + 1) // (block + 1)
             # split blocks into lines
             lines = map(itertools.chain.from_iterable,
                         chunk(chunks_spaced, blocks_per_line, ""))
-    
-    return lines
+    # Just strip of any extra spaces at this stage rather than worrying about
+    # removing them earlier.
+    return ("".join(line).strip() for line in lines)
 
 
 class CipherStreamer:
     """
-    Context to stream a file object through a function and write it to
-    an output, exposing the input as only uppercase letters. This class
-    can handle case correction and punctuation, if the caller wants it to.
+    Context to stream a file object through a function and write it to an
+    output, exposing the input as only uppercase letters. This class can handle
+    case correction and punctuation, if the caller wants it to.
 
     This is implemented as a decorator, that takes the arguments `in_file` and
     `out_file`, a readable and writeable file respectively. A keyword argument
@@ -86,24 +92,15 @@ class CipherStreamer:
         """
         self.func = func
 
-    def __call__(self, *args, preserve=False, block=None, width=None, compare=False, **kwargs):
+    def __call__(self, *args, **kwargs):
         """
         This is what happens when people actually call the function. It
-        dispatches to the appropriate method.
+        helpfully tells you to decide what you actually want in life.
         """
-        if preserve:
-            if block is not None or width is not None:
-                raise ValueError(
-                        "Preserve mode doesn't understand block or width")
-            self.preserve(*args, **kwargs)
-        else:
-            if block is None:
-                block = BLOCK_DEFAULT
-            if width is None:
-                width = WIDTH_DEFAULT
-            self.strip(*args, block=block, width=width, compare=compare, **kwargs)
+        raise TypeError("You should call {0}.preserve or {0}.strip explicitly"
+                .format(self.func.__name__))
 
-    def strip(self, in_file, out_file, *args, compare=False,
+    def strip(self, in_file, out_file, *args, compare=False, lowercase=False,
               block=BLOCK_DEFAULT, width=WIDTH_DEFAULT, **kwargs):
         """
         Strip all punctuation from the output, convert output to uppercase, and
@@ -115,35 +112,39 @@ class CipherStreamer:
         the case width > 0, block <= 0 (and vice versa). But I think it's a nice
         courtesy to support both.
 
-        It is *excruciatingly* lazy, to the point of illegibility. But I think
-        it's fun :)
+        If it is passed `compare=True`, it alternates between printing lines of
+        the original text and the processed text (so they can be compared). If
+        either runs out, empty lines will be printed until the other is
+        exhausted.
+
+        If it is passed `lowercase=True`, output it lowercase rather than
+        uppercase.
         """
-        if min(block, width) > 0 and width < block:
-            raise ValueError("`width` should be >= `block`")
-
+        if compare and 0 < width <= 2:
+            raise ValueError("width should be > 2 in compare mode")
+        input_chars = (c.upper() for c in
+                iter(lambda: in_file.read(1), "") if c.isalpha())
         if compare:
-            # This is probably really inefficient but I don't know enough about
-            # itertools to fix it
-            input_text, plaintext = itertools.tee((c.upper() for c in iter(lambda: in_file.read(1), "") if c.isalpha()))
+            input_chars, plaintext = itertools.tee(input_chars)
+        output = self.func(input_chars, *args, **kwargs)
+        if compare:
+            lines = get_lines(output, block, width - 2)
         else:
-            input_text = (c.upper() for c in iter(lambda: in_file.read(1), "") if c.isalpha())
-
-        plain_lines = ()
+            lines = get_lines(output, block, width)
+        if lowercase:
+            post_func = lambda s: "{}\n".format(s.lower())
+        else:
+            post_func = lambda s: "{}\n".format(s.upper())
         if compare:
-            plain_lines = get_lines(plaintext, block, width)
-
-        output = self.func(input_text, *args, **kwargs)
-        lines = get_lines(output, block, width)
-
-        # Just strip of any extra spaces at this stage rather than worrying
-        # about removing them earlier.
-        for line, plain in itertools.zip_longest(lines, plain_lines, fillvalue=None):
-            if compare and plain is not None:
-                out_file.write("".join(plain).strip().upper())
+            plain_lines = get_lines(plaintext, block, width - 2)
+            for line, plain in itertools.zip_longest(lines, plain_lines,
+                                                     fillvalue=""):
+                out_file.write("i:{}".format(post_func(plain)))
+                out_file.write("o:{}".format(post_func(line)))
                 out_file.write("\n")
-            out_file.write("".join(line).strip().upper())
-            out_file.write("\n")
-            compare and out_file.write("\n")
+        else:
+            for line in lines:
+                out_file.write(post_func(line))
 
     # TODO: do this better (more lazily), with itertools or something. As it
     #       stands this could easily just be written as a function returning a

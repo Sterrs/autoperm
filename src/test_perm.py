@@ -76,12 +76,19 @@ class TestPerm(unittest.TestCase):
         self.assertEqual(self.perm1c, self.operm)
         self.assertEqual(self.perm2c, Perm({1: 2, 2: 1}))
         self.assertEqual(self.perm3c, Perm({1: 2, 2: 3, 3: 1}))
+        self.assertEqual(Perm.from_cycle([1] * 2), Perm())
+        self.assertEqual(Perm.from_cycle([1] * 3), Perm())
+        self.assertEqual(Perm.from_cycle([1] * 4), Perm())
         self.assertEqual(Perm.from_cycle([2, 3, 1]),
                          self.perm3c)
         self.assertEqual(Perm.from_cycle([3, 2, 1]),
                          Perm({1: 3, 2: 1, 3: 2}))
-        for i in range(100):
-            self.assertTrue(Perm.from_cycle(range(i)).is_permutation())
+        for i in range(20):
+            for j in range(1, 5):
+                self.assertEqual(Perm.from_cycle(list(range(i)) * j),
+                                 Perm.from_cycle(range(i)))
+                self.assertTrue(
+                        Perm.from_cycle(list(range(i)) * j).is_permutation())
 
     def test_random(self):
         # check valid permutations are given
