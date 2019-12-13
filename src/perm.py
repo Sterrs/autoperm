@@ -75,13 +75,13 @@ class Perm:
         """
         return set(self.mapping.keys()) == set(self.mapping.values())
 
-    def disjoint_cycle_decomposition(self):
+    def disjoint_cycle_decomposition_unstable(self):
         """
         Get a list of lists which is the disjoint cycle decomposition. _DON'T_
         include 1-cycles, so that more can be inferred about cycle types across
         different domains from this decomposition.
         """
-        # use a set for amortised O(1) lookup
+        # use a set for amortised O(1) lookup.
         remaining = set(self.mapping)
         decomposition = []
         while remaining:
@@ -98,6 +98,37 @@ class Perm:
                 decomposition.append(cycle)
         return decomposition
 
+    def disjoint_cycle_decomposition_stable(self, key=lambda x: x):
+        """
+        A consistently presented disjoint cycle decomposition:
+
+        Because everything here is stored in hash maps, it's very
+        hard to guarantee any particular ordering in the disjoint cycle
+        decomposition. Therefore I'm arbitrarily ordering by length, and then by
+        smallest element (making the bold assumption that the elements can be
+        ordered, which is usually fine with strings or integers), and writing
+        each cycle with smallest element first.
+
+        If your elements don't overload the inequality operators but you can
+        think of some way to order them you can pass a key (which is passed to
+        min). (see also functools.cmp_to_key)
+
+        There is a certain associated overhead with this regularisation. If you
+        just want raw cycles and don't care about making them pretty, use
+        disjoint_cycle_decomposition_unstable.
+        """
+        decomposition = self.disjoint_cycle_decomposition_unstable()
+        for cycle in decomposition:
+            min_index = min(((i, ind) for ind, i in enumerate(cycle)),
+                            key=key)[1]
+            # I'm not sure if this is faster than slicing or not, but I
+            # marginally prefer the feeling of not building intermediate lists.
+            cycle[:] = [cycle[(min_index + i) % len(cycle)]
+                    for i in range(len(cycle))]
+        decomposition.sort(key=lambda cycle: key(cycle[0]))
+        decomposition.sort(key=len)
+        return decomposition
+
     def inverse(self):
         """
         Create the inverse of a permutation
@@ -108,7 +139,7 @@ class Perm:
         """
         Convert to disjoint cycle decomposition string
         """
-        dcd = self.disjoint_cycle_decomposition()
+        dcd = self.disjoint_cycle_decomposition_stable()
         if not dcd:
             return "Id"
         return "".join("({})".format(" ".join(map(str, cycle))) for cycle in
