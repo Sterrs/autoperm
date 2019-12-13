@@ -23,6 +23,9 @@ def get_lines(iterable, block, width):
     If block <= 0, do not insert spaces
     If width <= 0, do not insert newlines
     """
+    if min(block, width) > 0 and width < block:
+        raise ValueError("`width` should be >= `block`")
+
     # Each of the four cases is expected to produce an iterable `lines`,
     # consisting of iterables of strings to be joined and written as lines
     # to out_file.
@@ -118,8 +121,6 @@ class CipherStreamer:
         It is *excruciatingly* lazy, to the point of illegibility. But I think
         it's fun :)
         """
-        if min(block, width) > 0 and width < block:
-            raise ValueError("`width` should be >= `block`")
 
         if compare:
             # This is probably really inefficient but I don't know enough about
