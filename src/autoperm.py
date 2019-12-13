@@ -14,23 +14,14 @@ Implementation and specification by the mighty Alastair Horn.
 
 # TODO: try to do something with stripping accents from Unicode characters with
 #       unicodedata
-# TODO: generally write a couple more tests:
 
 import string
 import collections
-import itertools
 
 import argparse
 
 from perm import Perm
-from cipher_streamer import CipherStreamer
-
-def chunk(iterable, size, fillvalue=None):
-    """
-    Split an iterable into chunks of size `size`. Padded with `fillvalue` if
-    necessary.
-    """
-    return itertools.zip_longest(*[iter(iterable)] * size, fillvalue=fillvalue)
+from cipher_streamer import CipherStreamer, chunk, BLOCK_DEFAULT, WIDTH_DEFAULT
 
 @CipherStreamer
 def autoperm_encipher(plaintext, sigma, tau):
@@ -132,6 +123,31 @@ def get_args():
             "-v", "--verbose", action="store_true",
             help="""Print more information - careful you don't use `-` as
                     out_file and pipe to anything.""")
+    parser.add_argument(
+            "-p", "--preserve", action="store_true",
+            help="Preserve punctuation and case in output")
+    parser.add_argument(
+            "-b", "--block", type=int,
+            help="""Size of blocks to format output into - internal default
+                    {}""".format(BLOCK_DEFAULT))
+    parser.add_argument(
+            "-w", "--width", type=int,
+            help="""Length of lines to format output into - internal default
+                    {}""".format(WIDTH_DEFAULT))
+    # have to do a bit of manual checking here - I don't think there's a way to
+    # express this kind of dependency in pure ArgumentParser. cf:
+    # https://stackoverflow.com/questions/27411268/arguments-that-are-dependent-on-other-arguments-with-argparse
+    args = parser.parse_args()
+    if args.preserve:
+        if args.block is not None:
+            parser.error("-b/--block can't be used with -p/--preserve")
+        if args.width is not None:
+            parser.error("-w/--width can't be used with -p/--preserve")
+    else:
+        block = args.block if args.block is not None else BLOCK_DEFAULT
+        width = args.width if args.width is not None else WIDTH_DEFAULT
+        if min(block, width) > 0 and width < block:
+            parser.error("WIDTH should be >= BLOCK")
     return parser.parse_args()
 
 def main(args):
@@ -149,10 +165,14 @@ def main(args):
     with args.in_file, args.out_file:
         if args.encrypt:
             args.verbose and print("Enciphering...")
-            autoperm_encipher(args.in_file, args.out_file, sigma, tau)
+            autoperm_encipher(
+                    args.in_file, args.out_file, sigma, tau,
+                    preserve=args.preserve, block=args.block, width=args.width)
         else:
             args.verbose and print("Deciphering...")
-            autoperm_decipher(args.in_file, args.out_file, sigma, tau)
+            autoperm_decipher(
+                    args.in_file, args.out_file, sigma, tau,
+                    preserve=args.preserve, block=args.block, width=args.width)
 
 if __name__ == "__main__":
     main(get_args())

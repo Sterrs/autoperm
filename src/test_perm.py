@@ -8,9 +8,6 @@ $ pypy3 -m unittest -v
 it takes about 4-6 seconds to finish.
 """
 
-# TODO: somehow write tests for string parts - probably needs OrderedDict for
-#       3.6
-
 import unittest
 
 import itertools
@@ -18,6 +15,7 @@ import itertools
 from functools import reduce
 from operator import mul
 from random import sample
+from collections import OrderedDict
 
 from perm import Perm
 
@@ -91,6 +89,10 @@ class TestPerm(unittest.TestCase):
             self.assertTrue(Perm.random(range(i)).is_permutation)
 
     def test_dcd(self):
+        # There is not really much more in the way of testing that can be done,
+        # as disjoint_cycle_decomposition uses a set to efficiently store which
+        # elements it has and hasn't seen yet, so ordering isn't guaranteed to
+        # be deterministic per the 3.6 spec.
         self.assertCountEqual([tuple(sorted(cycle))
                                for cycle in
                                    self.perm6.disjoint_cycle_decomposition()],
@@ -163,17 +165,35 @@ class TestPerm(unittest.TestCase):
             for item in g.mapping:
                 self.assertEqual(g.mapping[item], g[item])
 
+    # The following tests are for string representations. They therefore use
+    # OrderedDicts, so that this program is compatible with as much of Python 3
+    # as possible, seeing as dictionary order preservation was only added to the
+    # spec in 3.7.
     def test_str(self):
+        # make sure nothing completely breaks. Unfortunately there is basically
+        # no proper robust way to test str at present (see test_dcd)
         for g in self.perms:
             str(g)
+        self.assertEqual(str(Perm()), "Id"),
+        self.assertEqual("".join(sorted(str(Perm.from_cycle([1, 2])))), " ()12")
 
     def test_repr(self):
         for g in self.perms:
             repr(g)
+        self.assertEqual(repr(Perm(OrderedDict(((1, 2), (2, 1))))),
+                         "Perm(OrderedDict([(1, 2), (2, 1)]))")
+        self.assertEqual(repr(Perm()),
+                         "Perm({})")
 
     def test_table_format(self):
         for g in self.perms:
             g.table_format()
+        self.assertEqual(Perm().table_format(),
+                         "Id\n")
+        self.assertEqual(Perm(OrderedDict(((1, 2), (2, 1)))).table_format(),
+                         "1 2\n2 1")
+        self.assertEqual(Perm(OrderedDict(((100, 2), (2, 100)))).table_format(),
+                         "100   2\n  2 100")
 
 if __name__ == "__main__":
     unittest.main()
