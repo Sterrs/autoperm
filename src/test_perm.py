@@ -76,31 +76,45 @@ class TestPerm(unittest.TestCase):
         self.assertEqual(self.perm1c, self.operm)
         self.assertEqual(self.perm2c, Perm({1: 2, 2: 1}))
         self.assertEqual(self.perm3c, Perm({1: 2, 2: 3, 3: 1}))
+        self.assertEqual(Perm.from_cycle([1] * 2), Perm())
+        self.assertEqual(Perm.from_cycle([1] * 3), Perm())
+        self.assertEqual(Perm.from_cycle([1] * 4), Perm())
         self.assertEqual(Perm.from_cycle([2, 3, 1]),
                          self.perm3c)
         self.assertEqual(Perm.from_cycle([3, 2, 1]),
                          Perm({1: 3, 2: 1, 3: 2}))
-        for i in range(100):
-            self.assertTrue(Perm.from_cycle(range(i)).is_permutation())
+        for i in range(20):
+            for j in range(1, 5):
+                self.assertEqual(Perm.from_cycle(list(range(i)) * j),
+                                 Perm.from_cycle(range(i)))
+                self.assertTrue(
+                        Perm.from_cycle(list(range(i)) * j).is_permutation())
 
     def test_random(self):
         # check valid permutations are given
         for i in range(100):
             self.assertTrue(Perm.random(range(i)).is_permutation)
 
-    def test_dcd(self):
-        # There is not really much more in the way of testing that can be done,
-        # as disjoint_cycle_decomposition uses a set to efficiently store which
-        # elements it has and hasn't seen yet, so ordering isn't guaranteed to
-        # be deterministic per the 3.6 spec.
-        self.assertCountEqual([tuple(sorted(cycle))
-                               for cycle in
-                                   self.perm6.disjoint_cycle_decomposition()],
-                              [(1, 2), (4, 5, 6)])
-        self.assertEqual([tuple(sorted(cycle))
-                          for cycle in
-                              self.perm3c.disjoint_cycle_decomposition()],
-                         [(1, 2, 3)])
+    def test_disjoint_cycle_decomposition(self):
+        self.assertEqual(Perm().disjoint_cycle_decomposition_stable(), [])
+        self.assertEqual(self.perm6.disjoint_cycle_decomposition_stable(),
+                         [[1, 2], [4, 5, 6]])
+        self.assertEqual(self.perm3c.disjoint_cycle_decomposition_stable(),
+                         [[1, 2, 3]])
+        # reconstruct permutations as a cycle composition
+        for g in self.perms:
+            self.assertEqual(
+                    reduce(mul,
+                           map(Perm.from_cycle,
+                               g.disjoint_cycle_decomposition_unstable()),
+                           Perm()),
+                    g)
+            self.assertEqual(
+                    reduce(mul,
+                           map(Perm.from_cycle,
+                               g.disjoint_cycle_decomposition_stable()),
+                           Perm()),
+                    g)
 
     def test_inverse(self):
         for g in self.perms:
@@ -121,8 +135,9 @@ class TestPerm(unittest.TestCase):
             # conjugates should preserve cycle type
             conj = h * g * h.inverse()
             self.assertCountEqual(
-                    list(map(len, g.disjoint_cycle_decomposition())),
-                    list(map(len, conj.disjoint_cycle_decomposition())))
+                    list(map(len, g.disjoint_cycle_decomposition_unstable())),
+                    list(map(len,
+                             conj.disjoint_cycle_decomposition_unstable())))
         # associativity of composition
         for g, h, k in itertools.product(*[self.perms] * 3):
             self.assertEqual((g * h) * k, g * (h * k))
@@ -152,7 +167,10 @@ class TestPerm(unittest.TestCase):
                     self.assertEqual(g ** a * g ** b, g ** (a + b))
             self.assertEqual(g ** -1, g.inverse())
             # check if the order divides the LCM of cycle lengths
-            order = reduce(mul, map(len, g.disjoint_cycle_decomposition()), 1)
+            order = reduce(mul,
+                           map(len,
+                               g.disjoint_cycle_decomposition_unstable()),
+                           1)
             self.assertEqual(g ** order, self.operm)
         self.assertEqual(Perm.from_cycle(range(10)) ** 9,
                          Perm.from_cycle(range(10)).inverse())
@@ -165,18 +183,18 @@ class TestPerm(unittest.TestCase):
             for item in g.mapping:
                 self.assertEqual(g.mapping[item], g[item])
 
+    def test_str(self):
+        for g in self.perms:
+            str(g)
+        self.assertEqual(str(Perm()), "Id"),
+        self.assertEqual(str(self.perm2c), "(1 2)")
+        self.assertEqual(str(self.perm3c), "(1 2 3)")
+        self.assertEqual(str(self.perm6), "(1 2)(4 5 6)")
+
     # The following tests are for string representations. They therefore use
     # OrderedDicts, so that this program is compatible with as much of Python 3
     # as possible, seeing as dictionary order preservation was only added to the
     # spec in 3.7.
-    def test_str(self):
-        # make sure nothing completely breaks. Unfortunately there is basically
-        # no proper robust way to test str at present (see test_dcd)
-        for g in self.perms:
-            str(g)
-        self.assertEqual(str(Perm()), "Id"),
-        self.assertEqual("".join(sorted(str(Perm.from_cycle([1, 2])))), " ()12")
-
     def test_repr(self):
         for g in self.perms:
             repr(g)

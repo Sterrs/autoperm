@@ -123,14 +123,16 @@ def get_args():
             "-v", "--verbose", action="store_true",
             help="""Print more information - careful you don't use `-` as
                     out_file and pipe to anything.""")
-    preserve = parser.add_mutually_exclusive_group()
-    preserve.add_argument(
+    parser.add_argument(
             "-p", "--preserve", action="store_true",
             help="Preserve punctuation and case in output")
-    # Cryptanalysis aid
-    preserve.add_argument(
-            "--compare", action="store_true",
+    parser.add_argument(
+            "-c", "--compare", action="store_const", const=True,
             help="Output original text to help cryptanalysis")
+    parser.add_argument(
+            "-l", "--lowercase", action="store_const", const=True,
+            help="""Size of blocks to format output into - internal default
+                    {}""".format(BLOCK_DEFAULT))
     parser.add_argument(
             "-b", "--block", type=int,
             help="""Size of blocks to format output into - internal default
@@ -144,16 +146,22 @@ def get_args():
     # https://stackoverflow.com/questions/27411268/arguments-that-are-dependent-on-other-arguments-with-argparse
     args = parser.parse_args()
     if args.preserve:
-        if args.block is not None:
-            parser.error("-b/--block can't be used with -p/--preserve")
-        if args.width is not None:
-            parser.error("-w/--width can't be used with -p/--preserve")
+        # here I'm directly accessing the dictionary associated with the
+        # returned NameSpace object, for D.R.Y reasons.
+        for short_name, arg in (("b", "block"), ("w", "width"),
+                                ("c", "compare"), ("l", "lowercase")):
+            if vars(args)[arg] is not None:
+                parser.error(
+                        "-{}/--{} can't be used with -p/--preserve"
+                            .format(short_name, arg))
     else:
-        block = args.block if args.block is not None else BLOCK_DEFAULT
-        width = args.width if args.width is not None else WIDTH_DEFAULT
-        if min(block, width) > 0 and width < block:
+        for arg, default in (("block", BLOCK_DEFAULT), ("width", WIDTH_DEFAULT),
+                             ("compare", False), ("lowercase", False)):
+            if vars(args)[arg] is None:
+                vars(args)[arg] = default
+        if min(args.block, args.width) > 0 and args.width < args.block:
             parser.error("WIDTH should be >= BLOCK")
-    return parser.parse_args()
+    return args
 
 def main(args):
     """
@@ -170,16 +178,17 @@ def main(args):
     with args.in_file, args.out_file:
         if args.encrypt:
             args.verbose and print("Enciphering...")
-            autoperm_encipher(
-                    args.in_file, args.out_file, sigma, tau,
-                    preserve=args.preserve, block=args.block, width=args.width,
-                    compare=args.compare)
+            process_func = autoperm_encipher
         else:
             args.verbose and print("Deciphering...")
-            autoperm_decipher(
+            process_func = autoperm_decipher
+        if args.preserve:
+            process_func.preserve(args.in_file, args.out_file, sigma, tau)
+        else:
+            process_func.strip(
                     args.in_file, args.out_file, sigma, tau,
-                    preserve=args.preserve, block=args.block, width=args.width,
-                    compare=args.compare)
+                    block=args.block, width=args.width, compare=args.compare,
+                    lowercase=args.lowercase)
 
 if __name__ == "__main__":
     main(get_args())
