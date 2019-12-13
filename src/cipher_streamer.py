@@ -46,7 +46,7 @@ def get_lines(iterable, block, width):
             # split blocks into lines
             lines = map(itertools.chain.from_iterable,
                         chunk(chunks_spaced, blocks_per_line, ""))
-    
+
     return lines
 
 
