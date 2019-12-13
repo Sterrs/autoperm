@@ -4,7 +4,8 @@ Cipher streamer class
 
 import itertools
 
-BLOCK_DEFAULT = 5
+# Block default of 4 makes much more sense :P
+BLOCK_DEFAULT = 4
 WIDTH_DEFAULT = 80
 
 def chunk(iterable, size, fillvalue=None):
@@ -13,6 +14,41 @@ def chunk(iterable, size, fillvalue=None):
     necessary.
     """
     return itertools.zip_longest(*[iter(iterable)] * size, fillvalue=fillvalue)
+
+
+def get_lines(iterable, block, width):
+    """
+    Convert some text into regular blocks of characters, wrapped after
+    a certain length.
+    If block <= 0, do not insert spaces
+    If width <= 0, do not insert newlines
+    """
+    # Each of the four cases is expected to produce an iterable `lines`,
+    # consisting of iterables of strings to be joined and written as lines
+    # to out_file.
+    if block <= 0:
+        if width <= 0:
+            lines = iterable,
+        else:
+            # chunk output into lines of length `width`
+            lines = chunk(iterable, width, "")
+    else:
+        # chunk the output into blocks of size `block`
+        chunks = chunk(iterable, block, "")
+        # add a space after each block
+        chunks_spaced = map(itertools.chain.from_iterable,
+                            zip(chunks, itertools.repeat(" ")))
+        if width <= 0:
+            # just write all the blocks
+            lines = itertools.chain.from_iterable(chunks_spaced),
+        else:
+            blocks_per_line = (width + 1) // (block + 1)
+            # split blocks into lines
+            lines = map(itertools.chain.from_iterable,
+                        chunk(chunks_spaced, blocks_per_line, ""))
+    
+    return lines
+
 
 class CipherStreamer:
     """
@@ -50,8 +86,7 @@ class CipherStreamer:
         """
         self.func = func
 
-
-    def __call__(self, *args, preserve=False, block=None, width=None, **kwargs):
+    def __call__(self, *args, preserve=False, block=None, width=None, compare=False, **kwargs):
         """
         This is what happens when people actually call the function. It
         dispatches to the appropriate method.
@@ -66,9 +101,9 @@ class CipherStreamer:
                 block = BLOCK_DEFAULT
             if width is None:
                 width = WIDTH_DEFAULT
-            self.strip(*args, block=block, width=width, **kwargs)
+            self.strip(*args, block=block, width=width, compare=compare, **kwargs)
 
-    def strip(self, in_file, out_file, *args,
+    def strip(self, in_file, out_file, *args, compare=False,
               block=BLOCK_DEFAULT, width=WIDTH_DEFAULT, **kwargs):
         """
         Strip all punctuation from the output, convert output to uppercase, and
@@ -85,36 +120,30 @@ class CipherStreamer:
         """
         if min(block, width) > 0 and width < block:
             raise ValueError("`width` should be >= `block`")
-        output = self.func((c.upper() for c in iter(lambda: in_file.read(1), "")
-                if c.isalpha()), *args, **kwargs)
-        # Each of the four cases is expected to produce an iterable `lines`,
-        # consisting of iterables of strings to be joined and written as lines
-        # to out_file.
-        if block <= 0:
-            if width <= 0:
-                lines = output,
-            else:
-                # chunk output into lines of length `width`
-                lines = chunk(output, width, "")
+
+        if compare:
+            # This is probably really inefficient but I don't know enough about
+            # itertools to fix it
+            input_text, plaintext = itertools.tee((c.upper() for c in iter(lambda: in_file.read(1), "") if c.isalpha()))
         else:
-            # chunk the output into blocks of size `block`
-            chunks = chunk(output, block, "")
-            # add a space after each block
-            chunks_spaced = map(itertools.chain.from_iterable,
-                                zip(chunks, itertools.repeat(" ")))
-            if width <= 0:
-                # just write all the blocks
-                lines = itertools.chain.from_iterable(chunks_spaced),
-            else:
-                blocks_per_line = (width + 1) // (block + 1)
-                # split blocks into lines
-                lines = map(itertools.chain.from_iterable,
-                            chunk(chunks_spaced, blocks_per_line, ""))
+            input_text = (c.upper() for c in iter(lambda: in_file.read(1), "") if c.isalpha())
+
+        plain_lines = ()
+        if compare:
+            plain_lines = get_lines(plaintext, block, width)
+
+        output = self.func(input_text, *args, **kwargs)
+        lines = get_lines(output, block, width)
+
         # Just strip of any extra spaces at this stage rather than worrying
         # about removing them earlier.
-        for line in lines:
+        for line, plain in itertools.zip_longest(lines, plain_lines, fillvalue=None):
+            if compare and plain is not None:
+                out_file.write("".join(plain).strip().upper())
+                out_file.write("\n")
             out_file.write("".join(line).strip().upper())
             out_file.write("\n")
+            compare and out_file.write("\n")
 
     # TODO: do this better (more lazily), with itertools or something. As it
     #       stands this could easily just be written as a function returning a

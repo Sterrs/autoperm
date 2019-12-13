@@ -123,9 +123,14 @@ def get_args():
             "-v", "--verbose", action="store_true",
             help="""Print more information - careful you don't use `-` as
                     out_file and pipe to anything.""")
-    parser.add_argument(
+    preserve = parser.add_mutually_exclusive_group()
+    preserve.add_argument(
             "-p", "--preserve", action="store_true",
             help="Preserve punctuation and case in output")
+    # Cryptanalysis aid
+    preserve.add_argument(
+            "--compare", action="store_true",
+            help="Output original text to help cryptanalysis")
     parser.add_argument(
             "-b", "--block", type=int,
             help="""Size of blocks to format output into - internal default
@@ -167,12 +172,14 @@ def main(args):
             args.verbose and print("Enciphering...")
             autoperm_encipher(
                     args.in_file, args.out_file, sigma, tau,
-                    preserve=args.preserve, block=args.block, width=args.width)
+                    preserve=args.preserve, block=args.block, width=args.width,
+                    compare=args.compare)
         else:
             args.verbose and print("Deciphering...")
             autoperm_decipher(
                     args.in_file, args.out_file, sigma, tau,
-                    preserve=args.preserve, block=args.block, width=args.width)
+                    preserve=args.preserve, block=args.block, width=args.width,
+                    compare=args.compare)
 
 if __name__ == "__main__":
     main(get_args())
