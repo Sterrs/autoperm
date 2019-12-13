@@ -15,7 +15,6 @@ def chunk(iterable, size, fillvalue=None):
     """
     return itertools.zip_longest(*[iter(iterable)] * size, fillvalue=fillvalue)
 
-
 def get_lines(iterable, block, width):
     """
     Convert into iterable of characters into regular blocks of characters,
@@ -26,7 +25,6 @@ def get_lines(iterable, block, width):
     It is *excruciatingly* lazy, to the point of illegibility. But I think it's
     fun :).
     """
-
     # Each of the four cases is expected to produce an iterable `lines`,
     # consisting of iterables of strings to be joined and written as lines to
     # out_file.
@@ -55,7 +53,6 @@ def get_lines(iterable, block, width):
     # Just strip of any extra spaces at this stage rather than worrying about
     # removing them earlier.
     return ("".join(line).strip() for line in lines)
-
 
 class CipherStreamer:
     """
