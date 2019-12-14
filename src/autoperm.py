@@ -127,8 +127,7 @@ def get_args():
             help="Output original text to help cryptanalysis")
     parser.add_argument(
             "-l", "--lowercase", action="store_const", const=True,
-            help="""Size of blocks to format output into - internal default
-                    {}""".format(BLOCK_DEFAULT))
+            help="Output text in lowercase rather than uppercase")
     parser.add_argument(
             "-b", "--block", type=int,
             help="""Size of blocks to format output into - internal default
