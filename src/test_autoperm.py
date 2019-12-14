@@ -9,9 +9,13 @@ import random
 import os
 import io
 
+from pathlib import Path
+
 from perm import Perm
 from autoperm import (autoperm_encipher, autoperm_decipher,
                       permutation_from_key)
+
+TEXTS_DIR = Path(__file__).parent / ".." / "texts"
 
 class TestAutoPerm(unittest.TestCase):
     def test_permutation_from_key(self):
@@ -66,10 +70,10 @@ class TestAutoPerm(unittest.TestCase):
     # this tests integrated functionality of the whole module. Probably doesn't
     # belong in a unit test suite, but oh well.
     #
-    # Just grabs any text-y looking files lying around in the directory to test
-    # itself on.
+    # It functions by making sure that any files in the directory of sample
+    # texts don't change when encrypted and decrypted again.
     def test_integration(self):
-        for file_entry in os.scandir():
+        for file_entry in os.scandir(TEXTS_DIR):
             sigma = permutation_from_key(random.choices(string.ascii_uppercase,
                                                         k=random.randrange(30)))
             tau = permutation_from_key(random.choices(string.ascii_uppercase,
@@ -77,7 +81,7 @@ class TestAutoPerm(unittest.TestCase):
             if not file_entry.is_file():
                 continue
             try:
-                with open(file_entry.name, "r") as data_file:
+                with open(file_entry.path, "r") as data_file:
                     data = data_file.read()
             # this is everything that I've currently thought of that could go
             # wrong - probably not exhaustive

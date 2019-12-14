@@ -22,6 +22,7 @@ import argparse
 
 from perm import Perm
 from cipher_streamer import CipherStreamer, chunk, BLOCK_DEFAULT, WIDTH_DEFAULT
+from util import strip_punc
 
 @CipherStreamer
 def autoperm_encipher(plaintext, sigma, tau):
@@ -76,9 +77,7 @@ def permutation_from_key(key):
     alphabet = set(string.ascii_uppercase)
     from_iterable = iter(string.ascii_uppercase)
     # use an OrderedDict so as to retain compatibility with 3.6 spec
-    key_unique = "".join(
-            collections.OrderedDict.fromkeys(
-                c.upper() for c in key if c.isalpha()))
+    key_unique = "".join(collections.OrderedDict.fromkeys(strip_punc(key)))
     # in case of empty key (although that's not a good idea)
     k = 'A'
     for k, a in zip(key_unique, from_iterable):

@@ -4,6 +4,8 @@ Cipher streamer class
 
 import itertools
 
+from util import file_chars, strip_punc
+
 # Block default of 4 makes much more sense :P
 BLOCK_DEFAULT = 4
 WIDTH_DEFAULT = 80
@@ -120,8 +122,7 @@ class CipherStreamer:
         """
         if compare and 0 < width <= 2:
             raise ValueError("width should be > 2 in compare mode")
-        input_chars = (c.upper() for c in
-                iter(lambda: in_file.read(1), "") if c.isalpha())
+        input_chars = strip_punc(file_chars(in_file))
         if compare:
             input_chars, plaintext = itertools.tee(input_chars)
         output = self.func(input_chars, *args, **kwargs)
@@ -161,10 +162,8 @@ class CipherStreamer:
         newline (which is present in any file made by a sane person) will be
         written as output.
         """
-        in_file_1, in_file_2 = itertools.tee(
-                iter(lambda: in_file.read(1), ""))
-        output = self.func((c.upper() for c in in_file_1 if c.isalpha()),
-                            *args, **kwargs)
+        in_file_1, in_file_2 = itertools.tee(file_chars(in_file))
+        output = self.func(strip_punc(in_file_1), *args, **kwargs)
         for c in output:
             punc = ' '
             for punc in in_file_2:

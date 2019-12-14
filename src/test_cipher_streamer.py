@@ -39,7 +39,7 @@ def extra_exes(text):
         yield "X"
         yield "X"
 
-def not_enough_exes(text):
+def not_enough_exes(_):
     yield from "XXX"
 
 class TestCipherStreamer(unittest.TestCase):
