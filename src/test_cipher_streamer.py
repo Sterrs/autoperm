@@ -31,11 +31,11 @@ def to_random(text):
             yield c.upper()
 
 def to_exes(text):
-    for c in text:
+    for _ in text:
         yield "X"
 
 def extra_exes(text):
-    for c in text:
+    for _ in text:
         yield "X"
         yield "X"
 
