@@ -59,6 +59,10 @@ class TestMetric(unittest.TestCase):
     def test_chi_squared(self):
         self.assertEqual(chi_squared({1: 0.2, 2: 0.8}, {1: 0.2, 2: 0.8}), 0)
         # exercise for the reader: prove this pattern holds in general
+        # all of these are testing for exact equality, because I expect the
+        # results to be nice-looking numbers, and I'd like to be informed about
+        # it if any changes introduce enough numerical instability to break
+        # this.
         self.assertEqual(chi_squared({1: 1}, {1: 1}), 0)
         self.assertEqual(chi_squared({1: 1}, {1: 0.5, 2: 0.5}), 1)
         self.assertEqual(chi_squared({1: 1}, {i: 0.25 for i in range(4)}), 3)
@@ -116,6 +120,7 @@ class TestMetric(unittest.TestCase):
         counts_input_size.english()
 
     def test_ioc(self):
+        # see test_chi_squared for why this is Equal rather than AlmostEqual
         self.assertEqual(ioc(""), 0)
         self.assertEqual(ioc("a"), 0)
         self.assertEqual(ioc("ab"), 0)
