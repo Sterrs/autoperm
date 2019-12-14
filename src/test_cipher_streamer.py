@@ -11,18 +11,22 @@ import textwrap as tw
 from cipher_streamer import CipherStreamer, chunk, get_lines
 
 # generators for use in TestCipherStreamer
+@CipherStreamer
 def unchanged(text):
     for c in text:
         yield c
 
+@CipherStreamer
 def to_upper(text):
     for c in text:
         yield c.upper()
 
+@CipherStreamer
 def to_lower(text):
     for c in text:
         yield c.lower()
 
+@CipherStreamer
 def to_random(text):
     for c in text:
         if random.random() < 0.5:
@@ -30,15 +34,18 @@ def to_random(text):
         else:
             yield c.upper()
 
+@CipherStreamer
 def to_exes(text):
     for _ in text:
         yield "X"
 
+@CipherStreamer
 def extra_exes(text):
     for _ in text:
         yield "X"
         yield "X"
 
+@CipherStreamer
 def not_enough_exes(_):
     yield from "XXX"
 
@@ -194,30 +201,29 @@ class TestCipherStreamer(unittest.TestCase):
 
     def test_call(self):
         for g in self.generators:
-            self.assertRaises(TypeError, CipherStreamer(g))
-            self.assertRaises(TypeError, CipherStreamer(g), "xyz", 1)
-            self.assertRaises(TypeError, CipherStreamer(g), a=123)
+            self.assertRaises(TypeError, g)
+            self.assertRaises(TypeError, g, "xyz", 1)
+            self.assertRaises(TypeError, g, a=123)
 
     def test_preserve(self):
         for g in self.preservative_generators:
             self.setUp()
-            CipherStreamer(g).preserve(self.input_file, self.output_file)
+            g.preserve(self.input_file, self.output_file)
             self.assertEqual(self.input_text, self.output_file.getvalue())
             self.setUp()
-            CipherStreamer(g).preserve(io.StringIO(), self.output_file)
+            g.preserve(io.StringIO(), self.output_file)
             self.assertEqual("", self.output_file.getvalue())
         self.setUp()
-        CipherStreamer(to_exes).preserve(self.input_file, self.output_file)
+        to_exes.preserve(self.input_file, self.output_file)
         self.assertEqual(self.output_file.getvalue(),
                          '"Xxxxxx (xx xxxxx xxxxxx), xxxxx xx xxx!?";')
         self.setUp()
-        CipherStreamer(extra_exes).preserve(self.input_file, self.output_file)
+        extra_exes.preserve(self.input_file, self.output_file)
         self.assertEqual(self.output_file.getvalue(),
                          ('"Xxxxxx (xx xxxxx xxxxxx), xxxxx xx xxx!?";'
                           'XXXXXXXXXXXXXXXXXXXXXXXXXXXXX'))
         self.setUp()
-        CipherStreamer(not_enough_exes).preserve(self.input_file,
-                                                 self.output_file)
+        not_enough_exes.preserve(self.input_file, self.output_file)
         self.assertEqual(self.output_file.getvalue(),
                          '"Xxx (  ),   !?";')
 
@@ -253,32 +259,30 @@ class TestCipherStreamer(unittest.TestCase):
         for lowercase, case_func in ((True, str.lower), (False, lambda s: s)):
             for g in self.preservative_generators:
                 self.setUp()
-                CipherStreamer(g).strip(self.input_file, self.output_file,
-                                        block=0, width=0, lowercase=lowercase)
+                g.strip(self.input_file, self.output_file, block=0, width=0,
+                        lowercase=lowercase)
                 self.assertEqual(case_func(self.input_stripped),
                                  self.output_file.getvalue())
                 self.setUp()
-                CipherStreamer(g).strip(self.input_file, self.output_file,
-                                        block=5, width=0, lowercase=lowercase)
+                g.strip(self.input_file, self.output_file, block=5, width=0,
+                        lowercase=lowercase)
                 self.assertEqual(case_func(self.input_blocks),
                                  self.output_file.getvalue())
                 self.setUp()
-                CipherStreamer(g).strip(self.input_file, self.output_file,
-                                        block=0, width=10, lowercase=lowercase)
+                g.strip(self.input_file, self.output_file, block=0, width=10,
+                        lowercase=lowercase)
                 self.assertEqual(case_func(self.input_lines),
                                  self.output_file.getvalue())
                 for width in range(11, 17):
                     self.setUp()
-                    CipherStreamer(g).strip(self.input_file, self.output_file,
-                                            block=5, width=width,
-                                            lowercase=lowercase)
+                    g.strip(self.input_file, self.output_file, block=5,
+                            width=width, lowercase=lowercase)
                     self.assertEqual(case_func(self.input_blocks_lines),
                                      self.output_file.getvalue())
                 for width in 10, 17:
                     self.setUp()
-                    CipherStreamer(g).strip(self.input_file, self.output_file,
-                                            block=5, width=width,
-                                            lowercase=lowercase)
+                    g.strip(self.input_file, self.output_file, block=5,
+                            width=width, lowercase=lowercase)
                     self.assertNotEqual(case_func(self.input_blocks_lines),
                                         self.output_file.getvalue())
             # a bit of meta-hackery here to make things more concise. I think
@@ -287,9 +291,8 @@ class TestCipherStreamer(unittest.TestCase):
                                (not_enough_exes, "_short"),
                                (extra_exes, "_extra")):
                 self.setUp()
-                CipherStreamer(g).strip(self.input_file, self.output_file,
-                                        block=0, width=0, compare=True,
-                                        lowercase=lowercase)
+                g.strip(self.input_file, self.output_file, block=0, width=0,
+                        compare=True, lowercase=lowercase)
                 self.assertEqual(
                         case_func(vars(self)[
                             "input_stripped_compare{}".format(postfix)]),
