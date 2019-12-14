@@ -12,9 +12,6 @@ Implementation of the autoperm cipher described in autoperm.tex.
 Implementation and specification by the mighty Alastair Horn.
 """
 
-# TODO: try to do something with stripping accents from Unicode characters with
-#       unicodedata
-
 import string
 import collections
 

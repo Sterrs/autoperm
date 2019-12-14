@@ -102,7 +102,7 @@ class Metric:
 
         Namely, the bee movie script.
         """
-        return self(strip_punc(BEE_MOVIE))
+        return self(BEE_MOVIE)
 
 @Metric
 def ioc(text, domain_size=26):
@@ -130,10 +130,13 @@ def frequency_goodness_of_fit(text):
     """
     Compute the goodness of fit with expected English letter frequencies.
 
-    Only looks at characters in the Latin alphabet.
+    Will do some weird stuff if you call it with no_strip, so probably don't do
+    that (unless you already know your text is punctuation free and uppercase,
+    in which case, feel free to make this tiny optimisation, but do so at your
+    own risk).
     """
     # Maps letters to their frequencies
-    letter_dist = normalise(collections.Counter(strip_punc(text)))
+    letter_dist = normalise(collections.Counter(text))
     return chi_squared(letter_dist, ENGLISH_FREQUENCIES)
 
 @Metric
@@ -143,7 +146,7 @@ def blind_frequency_fit(text):
     applied to any kind of simple polyalphabetic monograph substitution cipher,
     for instance (eg Vigenère, Caesar, keyword substitution, Beaufort...)
     """
-    letter_dist = normalise(collections.Counter(strip_punc(text)))
+    letter_dist = normalise(collections.Counter(text))
     return chi_squared(blind_distribution(letter_dist),
                        SORTED_ENGLISH_FREQUENCIES)
 
