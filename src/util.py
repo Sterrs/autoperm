@@ -13,4 +13,4 @@ def strip_punc(gen):
     """
     Remove all but the letters and make them uppercase
     """
-    return (c.upper() for c in gen if c.isalpha())
+    return map(str.upper, filter(str.isalpha, gen))
