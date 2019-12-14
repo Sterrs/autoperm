@@ -12,8 +12,7 @@ import io
 from pathlib import Path
 
 from perm import Perm
-from autoperm import (autoperm_encipher, autoperm_decipher,
-                      permutation_from_key)
+from autoperm import autoperm_encipher, autoperm_decipher, permutation_from_key
 
 TEXTS_DIR = Path(__file__).parent / ".." / "texts"
 

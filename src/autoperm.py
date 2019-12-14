@@ -58,9 +58,9 @@ def autoperm_decipher(ciphertext, sigma, tau):
 
 def permutation_from_key(key):
     """
-    Generate a low-level permutation from a key consisting of letters,
-    by removing repeated letters and filling in the rest of the
-    alphabet going from the last letter. Eg "linustorvalds" as key becomes
+    Generate a low-level permutation from a key consisting of letters, by
+    removing repeated letters and filling in the rest of the alphabet going from
+    the last letter. Eg "linustorvalds" as key becomes
     ABCDEFGHIJKLMNOPQRSTUVWXYZ
     LINUSTORVADEFGHJKMPQWXYZBC
     This method is /not/ completely standard. Wikipedia would have you believe
