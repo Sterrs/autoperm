@@ -73,6 +73,7 @@ class TestAutoPerm(unittest.TestCase):
     # It functions by making sure that any files in the directory of sample
     # texts don't change when encrypted and decrypted again.
     def test_integration(self):
+        found_files = False
         for file_entry in os.scandir(TEXTS_DIR):
             sigma = permutation_from_key(random.choices(string.ascii_uppercase,
                                                         k=random.randrange(30)))
@@ -95,6 +96,9 @@ class TestAutoPerm(unittest.TestCase):
             autoperm_decipher.preserve(ciphertext, decrypted_plaintext,
                                        sigma, tau)
             self.assertEqual(decrypted_plaintext.getvalue(), data)
+            found_files = True
+        if not found_files:
+            raise ValueError("test_integration did not find any files to read")
 
 if __name__ == "__main__":
     unittest.main()
