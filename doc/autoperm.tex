@@ -1,6 +1,8 @@
 % This is a LaTeX document, to be compiled something like pdflatex (for which
 % you will need a TeX distribution such as TeXLive)
 
+% vim: ts=1 sw=0 sts=-1 et ai tw=80
+
 \documentclass{article}
 \title{Autoperm Cipher}
 \author{Alastair Horn}
@@ -52,15 +54,15 @@ sequences of permutations:
 
 \section*{Cryptanalysis and Known Weaknesses}
 
-Over short distances within the plaintext, letters appearing more than once are 
-likely to produce a similar result in the ciphertext.
-Consider for example some plaintext letters
-$a_{2n}, a_{2n+1}, a_{2n+2}, a_{2n+3}$, with $a_{2n+1} = a_{2n+2}$. We have
+Over short distances within the plaintext, letters appearing more than once are
+likely to produce a similar result in the ciphertext. Consider for example some
+plaintext letters $a_{2n}, a_{2n + 1}, a_{2n + 2}, a_{2n + 3}$, with
+$a_{2n + 1} = a_{2n + 2}$. We have
 \begin{align*}
   b_{2n}   &= \sigma_n(a_{2n}) \\
-  b_{2n+1} &= \tau_n(a_{2n+1}) \\
-  b_{2n+2} &= \sigma_{n+1}(a_{2n+2})  \\
-           &= (\sigma_n \circ (a_{2n}\ a_{2n+1}))(a_{2n+1}) \\
+  b_{2n+1} &= \tau_n(a_{2n + 1}) \\
+  b_{2n+2} &= \sigma_{n+1}(a_{2n + 2})  \\
+           &= (\sigma_n \circ (a_{2n}\ a_{2n + 1}))(a_{2n + 1}) \\
            &= b_{2n}
 \end{align*}
 and other similar formations of letters cropping up again can produce similar
