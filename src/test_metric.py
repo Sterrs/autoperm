@@ -87,15 +87,15 @@ class TestMetric(unittest.TestCase):
             self.assertGreater(chi_squared(new_dist, test_dist), 0)
 
     def test_metric_call(self):
-        self.assertEqual(all_ones(""), ALL_ONES_SENTINEL)
-        self.assertEqual(all_ones("ABC"), ALL_ONES_SENTINEL)
+        self.assertIs(all_ones(""), ALL_ONES_SENTINEL)
+        self.assertIs(all_ones("ABC"), ALL_ONES_SENTINEL)
         self.assertEqual(counts_input_size("ABC"), 3)
         self.assertEqual(counts_input_size("ABC<^*&("), 3)
-        self.assertEqual(wants_arguments("ABC", 1, 2, arg3=2),
-                         WANTS_ARGUMENTS_SENTINEL)
-        self.assertEqual(wants_arguments("ABC", 1, arg2=2, arg3=2),
-                         WANTS_ARGUMENTS_SENTINEL)
-        self.assertEqual(all_ones(BEE_MOVIE), ALL_ONES_SENTINEL)
+        self.assertIs(wants_arguments("ABC", 1, 2, arg3=2),
+                      WANTS_ARGUMENTS_SENTINEL)
+        self.assertIs(wants_arguments("ABC", 1, arg2=2, arg3=2),
+                      WANTS_ARGUMENTS_SENTINEL)
+        self.assertIs(all_ones(BEE_MOVIE), ALL_ONES_SENTINEL)
         self.assertRaises(TypeError, all_ones)
         self.assertRaises(TypeError, all_ones, xyz=1)
         self.assertRaises(TypeError, wants_arguments, "ABC")
@@ -110,7 +110,7 @@ class TestMetric(unittest.TestCase):
         self.assertEqual(counts_input_size.no_strip("%^&"), 3)
 
     def test_metric_random(self):
-        self.assertEqual(all_ones.random(), ALL_ONES_SENTINEL)
+        self.assertIs(all_ones.random(), ALL_ONES_SENTINEL)
         self.assertEqual(counts_input_size.random(123), 123)
         self.assertEqual(counts_input_size.random(0), 0)
         self.assertEqual(counts_input_size.random(1), 1)

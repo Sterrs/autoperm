@@ -60,6 +60,7 @@ def chi_squared(observed_dist, expected_dist):
     # this is probably mathematically and programmatically bad. But basically in
     # the case where o = e = 0, I just want (o - e) ** 2 / e to be 0, since
     # there is no contribution of this point. if that makes any sense.
+    # Anyway, 0^2 / 0 == 0, just ask a differential equations lecturer
     my_div = lambda a, b: 0 if a == 0 else inf if b == 0 else a / b
     return sum(my_div((o - e) ** 2, e) for o, e in
                 ((d.get(i, 0) for d in (observed_dist, expected_dist))
