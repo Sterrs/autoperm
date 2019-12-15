@@ -1,3 +1,5 @@
+# vim: ts=4 sw=0 sts=-1 et ai tw=80
+
 """
 Unit tests for util.py
 """
@@ -6,7 +8,8 @@ import unittest
 
 import io
 
-from util import file_chars, strip_punc
+from autoperm.util import file_chars, strip_punc
+
 
 class TestUtil(unittest.TestCase):
     def setUp(self):
@@ -25,6 +28,7 @@ class TestUtil(unittest.TestCase):
     def test_strip_punc(self):
         for input_text, result in self.strings:
             self.assertEqual("".join(strip_punc(input_text)), result)
+
 
 if __name__ == "__main__":
     unittest.main()

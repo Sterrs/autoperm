@@ -1,3 +1,5 @@
+# vim: ts=4 sw=0 sts=-1 et ai tw=80
+
 """
 Unit tests for metric.py
 """
@@ -10,26 +12,30 @@ import string
 
 from math import inf
 
-from util import strip_punc
+from autoperm.util import strip_punc
 
-from metric import (BEE_MOVIE,
-                    blind_distribution, normalise, chi_squared, Metric, ioc,
-                    frequency_goodness_of_fit, blind_frequency_fit)
+from autoperm.metric import (
+        BEE_MOVIE, blind_distribution, normalise, chi_squared, Metric, ioc,
+        frequency_goodness_of_fit, blind_frequency_fit)
 
 ALL_ONES_SENTINEL = object()
 WANTS_ARGUMENTS_SENTINEL = object()
+
 
 @Metric
 def all_ones(text):
     return ALL_ONES_SENTINEL
 
+
 @Metric
 def counts_input_size(text):
     return sum(1 for _ in text)
 
+
 @Metric
 def wants_arguments(text, arg1, arg2, *, arg3):
     return WANTS_ARGUMENTS_SENTINEL
+
 
 class TestMetric(unittest.TestCase):
     def test_blind_distribution(self):
@@ -167,6 +173,7 @@ class TestMetric(unittest.TestCase):
                 blind_frequency_fit(
                     "Sphinx of black quartz, judge my vow"),
                 4.423343098394534)
+
 
 if __name__ == "__main__":
     unittest.main()

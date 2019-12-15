@@ -1,3 +1,5 @@
+# vim: ts=4 sw=0 sts=-1 et ai tw=80
+
 """
 Unit tests for CipherStreamer in autoperm.py
 """
@@ -8,7 +10,8 @@ import io
 import random
 import textwrap as tw
 
-from cipher_streamer import CipherStreamer, chunk, get_lines
+from autoperm.cipher_streamer import CipherStreamer, chunk, get_lines
+
 
 # generators for use in TestCipherStreamer
 @CipherStreamer
@@ -16,15 +19,18 @@ def unchanged(text):
     for c in text:
         yield c
 
+
 @CipherStreamer
 def to_upper(text):
     for c in text:
         yield c.upper()
 
+
 @CipherStreamer
 def to_lower(text):
     for c in text:
         yield c.lower()
+
 
 @CipherStreamer
 def to_random(text):
@@ -34,10 +40,12 @@ def to_random(text):
         else:
             yield c.upper()
 
+
 @CipherStreamer
 def to_exes(text):
     for _ in text:
         yield "X"
+
 
 @CipherStreamer
 def extra_exes(text):
@@ -45,9 +53,11 @@ def extra_exes(text):
         yield "X"
         yield "X"
 
+
 @CipherStreamer
 def not_enough_exes(_):
     yield from "XXX"
+
 
 class TestCipherStreamer(unittest.TestCase):
     def setUp(self):
@@ -297,6 +307,7 @@ class TestCipherStreamer(unittest.TestCase):
                         case_func(vars(self)[
                             "input_stripped_compare{}".format(postfix)]),
                         self.output_file.getvalue())
+
 
 if __name__ == "__main__":
     unittest.main()

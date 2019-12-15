@@ -1,3 +1,5 @@
+# vim: ts=4 sw=0 sts=-1 et ai tw=80
+
 """
 Unit test for top-level functions in autoperm.py
 """
@@ -11,10 +13,12 @@ import io
 
 from pathlib import Path
 
-from perm import Perm
-from autoperm import autoperm_encipher, autoperm_decipher, permutation_from_key
+from autoperm.perm import Perm
+from autoperm.autoperm import (autoperm_encipher, autoperm_decipher,
+                               permutation_from_key)
 
 TEXTS_DIR = Path(__file__).parent / ".." / "texts"
+
 
 class TestAutoPerm(unittest.TestCase):
     def test_permutation_from_key(self):
@@ -98,6 +102,7 @@ class TestAutoPerm(unittest.TestCase):
             found_files = True
         if not found_files:
             raise ValueError("test_integration did not find any files to read")
+
 
 if __name__ == "__main__":
     unittest.main()

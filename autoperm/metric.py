@@ -1,3 +1,5 @@
+# vim: ts=4 sw=0 sts=-1 et ai tw=80
+
 """
 Computing metrics on text
 """
@@ -16,6 +18,7 @@ BEE_MOVIE_PATH = Path(__file__).parent / ".." / "texts" / "beemovie.txt"
 with BEE_MOVIE_PATH.open("r") as f:
     BEE_MOVIE = f.read()
 
+
 def blind_distribution(dist):
     """
     Convert a distribution into a "blind" distribution, indexed by 0, 1, 2, ...
@@ -25,12 +28,14 @@ def blind_distribution(dist):
     """
     return dict(enumerate(sorted(dist.values(), reverse=True)))
 
+
 def normalise(dist):
     """
     Normalise some distribution, represented as a mapping
     """
     total = sum(dist.values())
     return {k: v / total for k, v in dist.items()}
+
 
 # re-normalise it, to make the total expected frequency be much closer to 1.
 # This kind of dubiously modifies the frequencies (although they stay in the
@@ -46,6 +51,7 @@ ENGLISH_FREQUENCIES = normalise(
          'U': 0.02758, 'V': 0.00978, 'W': 0.02560, 'X': 0.00150, 'Y': 0.01994,
          'Z': 0.00077})
 SORTED_ENGLISH_FREQUENCIES = blind_distribution(ENGLISH_FREQUENCIES)
+
 
 def chi_squared(observed_dist, expected_dist):
     """
@@ -65,6 +71,7 @@ def chi_squared(observed_dist, expected_dist):
     return sum(my_div((o - e) ** 2, e) for o, e in
                 ((d.get(i, 0) for d in (observed_dist, expected_dist))
                     for i in all_entries))
+
 
 class Metric:
     """
@@ -105,6 +112,7 @@ class Metric:
         """
         return self(BEE_MOVIE)
 
+
 @Metric
 def ioc(text, domain_size=26):
     """
@@ -126,6 +134,7 @@ def ioc(text, domain_size=26):
     # Don't divide until the very end to minimise floating point problems
     return ioc_sum * domain_size / (length * (length - 1))
 
+
 @Metric
 def frequency_goodness_of_fit(text):
     """
@@ -140,6 +149,7 @@ def frequency_goodness_of_fit(text):
     letter_dist = normalise(collections.Counter(text))
     return chi_squared(letter_dist, ENGLISH_FREQUENCIES)
 
+
 @Metric
 def blind_frequency_fit(text):
     """
@@ -150,6 +160,7 @@ def blind_frequency_fit(text):
     letter_dist = normalise(collections.Counter(text))
     return chi_squared(blind_distribution(letter_dist),
                        SORTED_ENGLISH_FREQUENCIES)
+
 
 if __name__ == "__main__":
     for metric in ioc, frequency_goodness_of_fit, blind_frequency_fit:

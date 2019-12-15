@@ -1,3 +1,5 @@
+# vim: ts=4 sw=0 sts=-1 et ai tw=80
+
 #                  __
 # _____    __ __ _/  |_  ____  ______    ____ _______   _____
 # \__  \  |  |  \\   __\/  _ \ \____ \ _/ __ \\_  __ \ /     \
@@ -21,6 +23,7 @@ from perm import Perm
 from cipher_streamer import CipherStreamer, chunk, BLOCK_DEFAULT, WIDTH_DEFAULT
 from util import strip_punc
 
+
 @CipherStreamer
 def autoperm_encipher(plaintext, sigma, tau):
     """
@@ -34,6 +37,7 @@ def autoperm_encipher(plaintext, sigma, tau):
             transposition = Perm.from_cycle([a, b])
             sigma *= transposition
             tau *= transposition
+
 
 @CipherStreamer
 def autoperm_decipher(ciphertext, sigma, tau):
@@ -52,6 +56,7 @@ def autoperm_decipher(ciphertext, sigma, tau):
             transposition = Perm.from_cycle([a_plain, b_plain])
             sigma_inverse = transposition * sigma_inverse
             tau_inverse = transposition * tau_inverse
+
 
 def permutation_from_key(key):
     """
@@ -87,6 +92,7 @@ def permutation_from_key(key):
     for ind, k in enumerate(from_iterable):
         mapping[k] = alphabet[(start_index + ind) % len(alphabet)]
     return Perm(mapping)
+
 
 def get_args():
     """
@@ -158,6 +164,7 @@ def get_args():
             parser.error("WIDTH should be >= BLOCK")
     return args
 
+
 def main(args):
     """
     Main function
@@ -184,6 +191,7 @@ def main(args):
                     args.in_file, args.out_file, sigma, tau,
                     block=args.block, width=args.width, compare=args.compare,
                     lowercase=args.lowercase)
+
 
 if __name__ == "__main__":
     main(get_args())

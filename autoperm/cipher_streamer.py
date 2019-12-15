@@ -1,3 +1,5 @@
+# vim: ts=4 sw=0 sts=-1 et ai tw=80
+
 """
 Cipher streamer class
 """
@@ -10,12 +12,14 @@ from util import file_chars, strip_punc
 BLOCK_DEFAULT = 4
 WIDTH_DEFAULT = 80
 
+
 def chunk(iterable, size, fillvalue=None):
     """
     Split an iterable into chunks of size `size`. Padded with `fillvalue` if
     necessary.
     """
     return itertools.zip_longest(*[iter(iterable)] * size, fillvalue=fillvalue)
+
 
 def get_lines(iterable, block, width):
     """
@@ -55,6 +59,7 @@ def get_lines(iterable, block, width):
     # Just strip of any extra spaces at this stage rather than worrying about
     # removing them earlier.
     return ("".join(line).strip() for line in lines)
+
 
 class CipherStreamer:
     """

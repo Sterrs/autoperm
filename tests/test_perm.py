@@ -1,3 +1,5 @@
+# vim: ts=4 sw=0 sts=-1 et ai tw=80
+
 """
 Unit tests for Perm in autoperm.py.
 
@@ -17,7 +19,8 @@ from operator import mul
 from random import sample
 from collections import OrderedDict
 
-from perm import Perm
+from autoperm.perm import Perm
+
 
 class TestPerm(unittest.TestCase):
     def setUp(self):
@@ -212,6 +215,7 @@ class TestPerm(unittest.TestCase):
                          "1 2\n2 1")
         self.assertEqual(Perm(OrderedDict(((100, 2), (2, 100)))).table_format(),
                          "100   2\n  2 100")
+
 
 if __name__ == "__main__":
     unittest.main()
