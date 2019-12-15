@@ -1,3 +1,5 @@
+.pylint_output
+
 # standard gitignore files from https://github.com/github/gitignore
 
 ## Core latex/pdflatex auxiliary files:
